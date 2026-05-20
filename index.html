@@ -196,17 +196,27 @@
           <td>Rp ${parseInt(data.nominal || 0).toLocaleString()}</td>
           <td>${data.status || '-'}</td>
           <td>
-            <button
-              class="btn btn-success btn-sm mb-1"
-              onclick="validasiLunas('${doc.id}')">
-              Lunas
-            </button>
-            <button
-              class="btn btn-danger btn-sm"
-              onclick="hapusData('${doc.id}')">
-              Hapus
-            </button>
-          </td>
+            ${
+    data.status !== "Lunas"
+    ?
+    `<button
+      class="btn btn-success btn-sm mb-1"
+      onclick="validasiLunas('${doc.id}')">
+      Lunas
+    </button>`
+    :
+    `<span class="badge bg-success">Sudah Lunas</span>`
+  }
+
+  <br>
+
+  <button
+    class="btn btn-danger btn-sm mt-1"
+    onclick="hapusData('${doc.id}')">
+    Hapus
+  </button>
+
+</td>
         </tr>
       `;
 
