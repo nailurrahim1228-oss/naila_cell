@@ -114,11 +114,17 @@
         </tbody>
 
       </table>
-      <div class="text-center mt-3">
+      <div class="d-flex justify-content-center gap-2 mt-3">
+
+  <button
+    class="btn btn-secondary"
+    onclick="loadData('back')">
+    Back
+  </button>
 
   <button
     class="btn btn-primary"
-    onclick="loadData(true)">
+    onclick="loadData('next')">
     Next
   </button>
 
@@ -184,14 +190,17 @@
 
 }
 
+let firstVisible = null;
 let lastVisible = null;
-let firstLoad = true;
+let currentPage = 1;
+
+const pageStack = [];
   
   // =========================
   // LOAD DATA
   // =========================
 
-async function loadData(next = false) {
+async function loadData(direction = "first") {
 
   const tbody = document.getElementById("tbody");
 
@@ -203,12 +212,30 @@ async function loadData(next = false) {
       .orderBy("tanggal", "desc")
       .limit(10);
 
-    // tombol next
-    if(next && lastVisible){
+    // NEXT
+    if(direction === "next" && lastVisible){
+
+      pageStack.push(firstVisible);
 
       query = db.collection("transaksi")
         .orderBy("tanggal", "desc")
         .startAfter(lastVisible)
+        .limit(10);
+
+      currentPage++;
+
+    }
+
+    // BACK
+    if(direction === "back" && pageStack.length > 0){
+
+      currentPage--;
+
+      const prevFirst = pageStack.pop();
+
+      query = db.collection("transaksi")
+        .orderBy("tanggal", "desc")
+        .startAt(prevFirst)
         .limit(10);
 
     }
@@ -217,14 +244,17 @@ async function loadData(next = false) {
 
     if(snapshot.empty){
 
-      alert("Tidak ada data berikutnya");
+      alert("Tidak ada data");
+
       return;
 
     }
 
+    firstVisible = snapshot.docs[0];
     lastVisible = snapshot.docs[snapshot.docs.length - 1];
 
-    let no = 1;
+    // nomor urut global
+    let no = ((currentPage - 1) * 10) + 1;
 
     snapshot.forEach((doc) => {
 
@@ -232,11 +262,19 @@ async function loadData(next = false) {
 
       tbody.innerHTML += `
         <tr>
+
           <td>${no++}</td>
+
           <td>${data.tanggal || '-'}</td>
+
           <td>${data.nama || '-'}</td>
+
           <td>${data.nomor || '-'}</td>
-          <td>Rp ${parseInt(data.nominal || 0).toLocaleString()}</td>
+
+          <td>
+            Rp ${parseInt(data.nominal || 0).toLocaleString()}
+          </td>
+
           <td>${data.status || '-'}</td>
 
           <td>
