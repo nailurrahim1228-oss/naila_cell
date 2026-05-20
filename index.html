@@ -117,15 +117,17 @@
       <div class="d-flex justify-content-center gap-2 mt-3">
 
   <button
-    class="btn btn-secondary"
-    onclick="loadData('back')">
-    Back
+  id="backBtn"
+  class="btn btn-secondary"
+  onclick="loadData('back')">
+  Back
   </button>
 
   <button
-    class="btn btn-primary"
-    onclick="loadData('next')">
-    Next
+  id="nextBtn"
+  class="btn btn-primary"
+  onclick="loadData('next')">
+  Next
   </button>
 
 </div>
@@ -241,7 +243,13 @@ async function loadData(direction = "first") {
     }
 
     const snapshot = await query.get();
+    // tombol next
+document.getElementById("nextBtn").disabled =
+  snapshot.docs.length < 10;
 
+// tombol back
+document.getElementById("backBtn").disabled =
+  currentPage === 1;
     if(snapshot.empty){
 
      // alert("Tidak ada data");
