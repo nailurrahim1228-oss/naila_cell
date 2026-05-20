@@ -201,7 +201,15 @@ const pageStack = [];
   // =========================
   // LOAD DATA
   // =========================
+function formatTanggal(tanggal){
 
+  if(!tanggal) return "-";
+
+  const parts = tanggal.split("-");
+
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+
+}
 async function loadData(direction = "first") {
 
   const tbody = document.getElementById("tbody");
@@ -273,7 +281,7 @@ document.getElementById("backBtn").disabled =
 
           <td>${no++}</td>
 
-          <td>${data.tanggal || '-'}</td>
+          <td>${formatTanggal(data.tanggal)}</td>
 
           <td>${data.nama || '-'}</td>
 
@@ -415,7 +423,7 @@ async function downloadExcel(){
 
       dataExcel.push({
         No: no++,
-        Tanggal: data.tanggal || '-',
+        Tanggal: formatTanggal(data.tanggal),
         Nama: data.nama || '-',
         "No HP": "'" + (data.nomor || '-'),
         Nominal: data.nominal || 0,
