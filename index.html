@@ -195,24 +195,24 @@
           <td>${data.nomor || '-'}</td>
           <td>Rp ${parseInt(data.nominal || 0).toLocaleString()}</td>
           <td>${data.status || '-'}</td>
-          <td>
+ <td>
 
   ${
-    data.status !== "Lunas"
+    data.status === "Bon"
     ?
-    `<button
+    `
+    <button
       class="btn btn-success btn-sm mb-1"
       onclick="validasiLunas('${doc.id}')">
       Lunas
-    </button>`
+    </button>
+    `
     :
     ``
   }
 
-  <br>
-
   <button
-    class="btn btn-danger btn-sm mt-1"
+    class="btn btn-danger btn-sm"
     onclick="hapusData('${doc.id}')">
     Hapus
   </button>
