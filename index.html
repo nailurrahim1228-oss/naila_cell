@@ -171,46 +171,50 @@
   // LOAD DATA
   // =========================
 
-  async function loadData(){
+  async function loadData() {
 
-    const tbody = document.getElementById("tbody");
-    tbody.innerHTML = "";
+  const tbody = document.getElementById("tbody");
 
-    const filter = document.getElementById("filterStatus").value;
+  tbody.innerHTML = "";
 
-    let query = db.collection("transaksi").orderBy("createdAt","desc");
+  try {
 
-    const snapshot = await query.get();
+    const snapshot = await db.collection("transaksi").get();
 
     let no = 1;
 
-    snapshot.forEach((doc)=>{
+    snapshot.forEach((doc) => {
 
       const data = doc.data();
-
-      if(filter !== "Semua" && data.status !== filter){
-        return;
-      }
 
       tbody.innerHTML += `
         <tr>
           <td>${no++}</td>
-          <td>${data.tanggal}</td>
-          <td>${data.nama}</td>
-          <td>${data.nomor}</td>
-          <td>Rp ${parseInt(data.nominal).toLocaleString()}</td>
-          <td>${data.status}</td>
+          <td>${data.tanggal || '-'}</td>
+          <td>${data.nama || '-'}</td>
+          <td>${data.nomor || '-'}</td>
+          <td>Rp ${parseInt(data.nominal || 0).toLocaleString()}</td>
+          <td>${data.status || '-'}</td>
           <td>
-            <button class="btn btn-danger btn-sm"
+            <button
+              class="btn btn-danger btn-sm"
               onclick="hapusData('${doc.id}')">
               Hapus
             </button>
           </td>
         </tr>
       `;
+
     });
 
+  } catch (error) {
+
+    console.error(error);
+    alert("Gagal memuat data");
+
   }
+
+}
 
   // =========================
   // HAPUS DATA
