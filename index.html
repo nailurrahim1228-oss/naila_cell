@@ -396,34 +396,59 @@ function filterTable(){
   }
 
 }
-  function downloadExcel(){
+async function downloadExcel(){
 
-  const table = document.getElementById("tableTransaksi");
+  try {
 
-  // clone table
-  const cloneTable = table.cloneNode(true);
+    // ambil semua data dari firebase
+    const snapshot = await db.collection("transaksi")
+      .orderBy("tanggal", "desc")
+      .get();
 
-  const rows = cloneTable.querySelectorAll("tbody tr");
+    let dataExcel = [];
 
-  rows.forEach(row => {
+    let no = 1;
 
-    // kolom nomor HP = index ke-3
-    const hpCell = row.cells[3];
+    snapshot.forEach((doc) => {
 
-    if(hpCell){
+      const data = doc.data();
 
-      // paksa jadi text
-      hpCell.innerText = "'" + hpCell.innerText;
+      dataExcel.push({
+        No: no++,
+        Tanggal: data.tanggal || '-',
+        Nama: data.nama || '-',
+        "No HP": "'" + (data.nomor || '-'),
+        Nominal: data.nominal || 0,
+        Status: data.status || '-'
+      });
 
-    }
+    });
 
-  });
+    // buat worksheet
+    const worksheet = XLSX.utils.json_to_sheet(dataExcel);
 
-  const workbook = XLSX.utils.table_to_book(cloneTable, {
-    sheet: "Transaksi Pulsa"
-  });
+    // buat workbook
+    const workbook = XLSX.utils.book_new();
 
-  XLSX.writeFile(workbook, "data-transaksi-pulsa.xlsx");
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Transaksi Pulsa"
+    );
+
+    // download file
+    XLSX.writeFile(
+      workbook,
+      "data-transaksi-pulsa.xlsx"
+    );
+
+  } catch(error){
+
+    console.error(error);
+
+    alert("Gagal download excel");
+
+  }
 
 }
   loadData();
