@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catatan Transaksi Pulsa</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <style>
+    body{
+      background:#f5f7fb;
+    }
+
+    .card{
+      border:none;
+      border-radius:16px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    table{
+      background:white;
+    }
+
+    th{
+      background:#0d6efd !important;
+      color:white;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-4">
+
+  <div class="card p-4 mb-4">
+    <h3 class="mb-4 text-primary">Catatan Transaksi Penjualan Pulsa</h3>
+
+    <div class="row g-3">
+
+      <div class="col-md-2">
+        <input type="date" id="tanggal" class="form-control">
+      </div>
+
+      <div class="col-md-3">
+        <input type="text" id="nama" class="form-control" placeholder="Nama Pelanggan">
+      </div>
+
+      <div class="col-md-3">
+        <input type="text" id="nomor" class="form-control" placeholder="Nomor HP">
+      </div>
+
+      <div class="col-md-2">
+        <input type="number" id="nominal" class="form-control" placeholder="Nominal">
+      </div>
+
+      <div class="col-md-2">
+        <select id="status" class="form-select">
+          <option value="Lunas">Lunas</option>
+          <option value="Bon">Bon</option>
+        </select>
+      </div>
+
+      <div class="col-md-12">
+        <button class="btn btn-primary" onclick="simpanData()">
+          Simpan Transaksi
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card p-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <h5>Data Transaksi</h5>
+
+      <input
+    type="text"
+    id="filterInput"
+    class="form-control w-auto"
+    placeholder="Filter semua data..."
+    onkeyup="filterTable()"
+  >
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Tanggal</th>
+            <th>Nama</th>
+            <th>No HP</th>
+            <th>Nominal</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+
+        <tbody id="tbody">
+        </tbody>
+
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+  // =========================
+  // KONFIGURASI FIREBASE
+  // =========================
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfrRLgIgF1OjXfFEZ6yc32J_Bp4jYPJe0",
+    authDomain: "naila-cell.firebaseapp.com",
+    projectId: "naila-cell",
+    storageBucket: "naila-cell.firebasestorage.app",
+    messagingSenderId: "246265926042",
+    appId: "1:246265926042:web:906cb12b9c8db49939ea23"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const db = firebase.firestore();
+
+  // =========================
+  // SIMPAN DATA
+  // =========================
+
+  async function simpanData(){
+
+    const tanggal = document.getElementById("tanggal").value;
+    const nama = document.getElementById("nama").value;
+    const nomor = document.getElementById("nomor").value;
+    const nominal = document.getElementById("nominal").value;
+    const status = document.getElementById("status").value;
+
+    if(!tanggal || !nama || !nomor || !nominal){
+      alert("Lengkapi semua data!");
+      return;
+    }
+
+    await db.collection("transaksi").add({
+      tanggal,
+      nama,
+      nomor,
+      nominal,
+      status,
+      createdAt: new Date()
+    });
+
+    alert("Data berhasil disimpan!");
+
+    document.getElementById("tanggal").value = "";
+    document.getElementById("nama").value = "";
+    document.getElementById("nomor").value = "";
+    document.getElementById("nominal").value = "";
+
+    loadData();
+  }
+
+  // =========================
+  // LOAD DATA
+  // =========================
+
+  async function loadData(){
+
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+
+    const filter = document.getElementById("filterStatus").value;
+
+    let query = db.collection("transaksi").orderBy("createdAt","desc");
+
+    const snapshot = await query.get();
+
+    let no = 1;
+
+    snapshot.forEach((doc)=>{
+
+      const data = doc.data();
+
+      if(filter !== "Semua" && data.status !== filter){
+        return;
+      }
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${no++}</td>
+          <td>${data.tanggal}</td>
+          <td>${data.nama}</td>
+          <td>${data.nomor}</td>
+          <td>Rp ${parseInt(data.nominal).toLocaleString()}</td>
+          <td>${data.status}</td>
+          <td>
+            <button class="btn btn-danger btn-sm"
+              onclick="hapusData('${doc.id}')">
+              Hapus
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+  }
+
+  // =========================
+  // HAPUS DATA
+  // =========================
+
+  async function hapusData(id){
+
+    const konfirmasi = confirm("Yakin ingin menghapus data?");
+
+    if(!konfirmasi) return;
+
+    await db.collection("transaksi").doc(id).delete();
+
+    loadData();
+  }
+// =========================
+// FILTER SEMUA DATA TABLE
+// =========================
+
+function filterTable(){
+
+  const input = document.getElementById("filterInput");
+  const filter = input.value.toLowerCase();
+
+  const table = document.getElementById("tbody");
+  const tr = table.getElementsByTagName("tr");
+
+  for(let i = 0; i < tr.length; i++){
+
+    const td = tr[i].getElementsByTagName("td");
+
+    let cocok = false;
+
+    for(let j = 0; j < td.length; j++){
+
+      if(td[j]){
+
+        const text = td[j].textContent || td[j].innerText;
+
+        if(text.toLowerCase().indexOf(filter) > -1){
+          cocok = true;
+          break;
+        }
+
+      }
+
+    }
+
+    tr[i].style.display = cocok ? "" : "none";
+
+  }
+
+}
+  loadData();
+
+</script>
+
+</body>
+</html>
