@@ -135,7 +135,9 @@
   // SIMPAN DATA
   // =========================
 
-  async function simpanData(){
+  async function simpanData() {
+
+  try {
 
     const tanggal = document.getElementById("tanggal").value;
     const nama = document.getElementById("nama").value;
@@ -143,29 +145,27 @@
     const nominal = document.getElementById("nominal").value;
     const status = document.getElementById("status").value;
 
-    if(!tanggal || !nama || !nomor || !nominal){
-      alert("Lengkapi semua data!");
-      return;
-    }
-
     await db.collection("transaksi").add({
-      tanggal,
-      nama,
-      nomor,
-      nominal,
-      status,
+      tanggal: tanggal,
+      nama: nama,
+      nomor: nomor,
+      nominal: nominal,
+      status: status,
       createdAt: new Date()
     });
 
     alert("Data berhasil disimpan!");
 
-    document.getElementById("tanggal").value = "";
-    document.getElementById("nama").value = "";
-    document.getElementById("nomor").value = "";
-    document.getElementById("nominal").value = "";
-
     loadData();
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Gagal menyimpan data!");
+
   }
+
+}
 
   // =========================
   // LOAD DATA
