@@ -316,7 +316,26 @@ function filterTable(){
 
   const table = document.getElementById("tableTransaksi");
 
-  const workbook = XLSX.utils.table_to_book(table, {
+  // clone table
+  const cloneTable = table.cloneNode(true);
+
+  const rows = cloneTable.querySelectorAll("tbody tr");
+
+  rows.forEach(row => {
+
+    // kolom nomor HP = index ke-3
+    const hpCell = row.cells[3];
+
+    if(hpCell){
+
+      // paksa jadi text
+      hpCell.innerText = "'" + hpCell.innerText;
+
+    }
+
+  });
+
+  const workbook = XLSX.utils.table_to_book(cloneTable, {
     sheet: "Transaksi Pulsa"
   });
 
