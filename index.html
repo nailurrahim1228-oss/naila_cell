@@ -114,6 +114,15 @@
         </tbody>
 
       </table>
+      <div class="text-center mt-3">
+
+  <button
+    class="btn btn-primary"
+    onclick="loadData(true)">
+    Next
+  </button>
+
+</div>
     </div>
 
   </div>
@@ -175,14 +184,14 @@
 
 }
 
-//let lastVisible = null;
-//let firstLoad = true;
+let lastVisible = null;
+let firstLoad = true;
   
   // =========================
   // LOAD DATA
   // =========================
 
-  async function loadData() {
+async function loadData(next = false) {
 
   const tbody = document.getElementById("tbody");
 
@@ -190,10 +199,30 @@
 
   try {
 
-    const snapshot = await db.collection("transaksi")
-  .orderBy("tanggal", "desc")
-  .limit(10)
-  .get();
+    let query = db.collection("transaksi")
+      .orderBy("tanggal", "desc")
+      .limit(10);
+
+    // tombol next
+    if(next && lastVisible){
+
+      query = db.collection("transaksi")
+        .orderBy("tanggal", "desc")
+        .startAfter(lastVisible)
+        .limit(10);
+
+    }
+
+    const snapshot = await query.get();
+
+    if(snapshot.empty){
+
+      alert("Tidak ada data berikutnya");
+      return;
+
+    }
+
+    lastVisible = snapshot.docs[snapshot.docs.length - 1];
 
     let no = 1;
 
@@ -209,43 +238,46 @@
           <td>${data.nomor || '-'}</td>
           <td>Rp ${parseInt(data.nominal || 0).toLocaleString()}</td>
           <td>${data.status || '-'}</td>
- <td>
 
-  ${
-    data.status === "Bon"
-    ?
-    `
-    <button
-      class="btn btn-success btn-sm mb-1"
-      onclick="validasiLunas('${doc.id}')">
-      Lunas
-    </button>
-    `
-    :
-    ``
-  }
+          <td>
 
-  <button
-    class="btn btn-danger btn-sm"
-    onclick="hapusData('${doc.id}')">
-    Hapus
-  </button>
+            ${
+              data.status === "Bon"
+              ?
+              `
+              <button
+                class="btn btn-success btn-sm mb-1"
+                onclick="validasiLunas('${doc.id}')">
+                Lunas
+              </button>
+              `
+              :
+              ``
+            }
 
-</td>
+            <button
+              class="btn btn-danger btn-sm"
+              onclick="hapusData('${doc.id}')">
+              Hapus
+            </button>
+
+          </td>
+
         </tr>
       `;
 
     });
 
-  } catch (error) {
+  } catch(error){
 
     console.error(error);
-    //alert("Gagal memuat data");
+
+    alert("Gagal memuat data");
 
   }
 
-}
-  async function validasiLunas(id){
+}  
+async function validasiLunas(id){
 
   try {
 
