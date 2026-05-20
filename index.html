@@ -189,6 +189,7 @@
 
     const snapshot = await db.collection("transaksi")
   .orderBy("tanggal", "desc")
+  .limit(10)
   .get();
 
     let no = 1;
