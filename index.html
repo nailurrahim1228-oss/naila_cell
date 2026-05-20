@@ -199,7 +199,7 @@
             <button
               class="btn btn-success btn-sm mb-1"
               onclick="validasiLunas('${doc.id}')">
-              ✔
+              Lunas
             </button>
             <button
               class="btn btn-danger btn-sm"
@@ -220,7 +220,27 @@
   }
 
 }
+  async function validasiLunas(id){
 
+  try {
+
+    await db.collection("transaksi").doc(id).update({
+      status: "Lunas"
+    });
+
+    alert("Status berhasil diubah menjadi Lunas");
+
+    loadData();
+
+  } catch(error){
+
+    console.error(error);
+
+    alert("Gagal mengubah status");
+
+  }
+
+}
   // =========================
   // HAPUS DATA
   // =========================
