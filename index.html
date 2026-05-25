@@ -230,7 +230,7 @@ async function loadData(direction = "first") {
       query = db.collection("transaksi")
         .orderBy("tanggal", "desc")
         .startAfter(lastVisible)
-        .limit(10);
+        .limit(20);
 
       currentPage++;
 
@@ -246,14 +246,14 @@ async function loadData(direction = "first") {
       query = db.collection("transaksi")
         .orderBy("tanggal", "desc")
         .startAt(prevFirst)
-        .limit(10);
+        .limit(20);
 
     }
 
     const snapshot = await query.get();
     // tombol next
 document.getElementById("nextBtn").disabled =
-  snapshot.docs.length < 10;
+  snapshot.docs.length < 20;
 
 // tombol back
 document.getElementById("backBtn").disabled =
@@ -270,7 +270,7 @@ document.getElementById("backBtn").disabled =
     lastVisible = snapshot.docs[snapshot.docs.length - 1];
 
     // nomor urut global
-    let no = ((currentPage - 1) * 10) + 1;
+    let no = ((currentPage - 1) * 20) + 1;
 
     snapshot.forEach((doc) => {
 
