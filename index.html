@@ -220,7 +220,7 @@ async function loadData(direction = "first") {
 
     let query = db.collection("transaksi")
       .orderBy("tanggal", "desc")
-      .limit(10);
+      .limit(20);
 
     // NEXT
     if(direction === "next" && lastVisible){
